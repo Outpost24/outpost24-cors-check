@@ -86,6 +86,14 @@ class CorsScannerCheck(private val api: MontoyaApi) : ScanCheck {
             trustedDomain = domainRegex.find(baseRequestResponse.request().headerValue("Origin"))?.groupValues?.get(1) ?: baseRequestResponse.request().httpService().host()
         }
 
+        //Check if we have arbitrary origin reflection. If we do, just give-up burp will handle this for us and we don't want to report all of these bypasses....
+        val arbitraryOriginCheckRequest = baseRequestResponse.request().withHeader("Origin", attackerDomain)
+        val arbitraryOrigincheckRequestResponse = api.http().sendRequest(arbitraryOriginCheckRequest)
+        if (arbitraryOrigincheckRequestResponse.response().headerValue("Access-Control-Allow-Credentials") == "true" && arbitraryOrigincheckRequestResponse.response().headerValue("Access-Control-Allow-Origin") == attackerDomain) {
+            api.logging().logToOutput("Arbitrary Reflected Origin found, skipping because burp will handle this for us.")
+            return AuditResult.auditResult()
+        }
+
         val issues = mutableListOf<AuditIssue>()
 
         for (scheme in schemes) {
