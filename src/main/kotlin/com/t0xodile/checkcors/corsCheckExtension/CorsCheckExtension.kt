@@ -9,7 +9,7 @@ class CorsCheckExtension : BurpExtension {
             return
         }
 
-        val name = "T0xodile's Cors Check"
+        val name = "t0xodile's Cors Check"
         api.extension().setName(name)
         api.logging().logToOutput("Loaded $name")
         api.scanner().registerScanCheck(CorsScannerCheck(api))

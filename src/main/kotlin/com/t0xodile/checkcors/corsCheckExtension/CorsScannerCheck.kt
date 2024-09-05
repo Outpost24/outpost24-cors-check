@@ -22,6 +22,7 @@ class CorsScannerCheck(private val api: MontoyaApi) : ScanCheck {
         5. If any of the checks work, stop the loop and don't report
         */
 
+
         val bypasses = listOf(
             "example.com._.web-attacker.com",
             "example.com.-.web-attacker.com",
@@ -115,13 +116,13 @@ class CorsScannerCheck(private val api: MontoyaApi) : ScanCheck {
 
                 val auditIssue = AuditIssue.auditIssue(
                     "Permissive Cross-Origin Resource Sharing via '$bypass'",
-                    "Some details",
-                    "Some remediation",
+                    "This response is reflecting a super-weird origin header value that actually makes it vulnerable. For some special characters you might need to use Safari. This check is based off of this research -> https://corben.io/blog/18-6-16-advanced-cors-techniques | https://github.com/lc/theftfuzzer/tree/master",
+                    "Validate the 'Origin' header against a whitelist of know-trusted domains and subdomains.",
                     baseRequestResponse.request().url(),
                     AuditIssueSeverity.HIGH,
                     AuditIssueConfidence.CERTAIN,
-                    "Yeah this is important",
-                    "background on remediation",
+                    "Permissive Cross-Origin Resource Sharing may allow an attacker to steal sensitive data from unsuspecting users. For this to work, the application must implement some form of authentication that the browser will automatically include with requests (think cookies, basic auth, digest but NOT Authorization Bearer). Additionally, if Cookies are used, SameSite will likely need to be EXPLICITLY set to 'None' for the cookie to be sent cross-domain.",
+                    "Implementing URL validation in a regex can be tricky. Better to implement a whitelist and have the origin header match EXACTLY those values, otherwise reject. ",
                     AuditIssueSeverity.HIGH,
                     checkRequestResponse.withResponseMarkers(responseHighlights).withRequestMarkers(requestHighlights)
                 )
