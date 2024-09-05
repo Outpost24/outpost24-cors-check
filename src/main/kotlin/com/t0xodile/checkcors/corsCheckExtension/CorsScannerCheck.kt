@@ -12,7 +12,7 @@ import burp.api.montoya.scanner.audit.issues.AuditIssueConfidence
 import burp.api.montoya.scanner.audit.issues.AuditIssueSeverity
 
 class CorsScannerCheck(private val api: MontoyaApi) : ScanCheck {
-    private var runOnce = false
+    private val auditedRequests: MutableSet<HttpRequestResponse> = HashSet()
     override fun activeAudit(baseRequestResponse: HttpRequestResponse, auditInsertionPoint: AuditInsertionPoint): AuditResult {
         /*
         PLAN:
@@ -23,10 +23,13 @@ class CorsScannerCheck(private val api: MontoyaApi) : ScanCheck {
         5. If any of the checks work, stop the loop and don't report
         */
 
-        //Ensure we only run the check once... not for each insertion point
-        if (runOnce) {
+        //Ensure we only run the check once... not for each request
+        if (auditedRequests.contains(baseRequestResponse)) {
             return AuditResult.auditResult()
         }
+
+        //Add current request to list of "not to be scanned" items
+        auditedRequests.add(baseRequestResponse)
 
         val bypasses = listOf(
             "example.com._.web-attacker.com",
@@ -135,8 +138,6 @@ class CorsScannerCheck(private val api: MontoyaApi) : ScanCheck {
 
             }
         }
-        // If we're here, the for-loop is done and so are we!
-        runOnce = true
         return AuditResult.auditResult(issues)
 
     }
