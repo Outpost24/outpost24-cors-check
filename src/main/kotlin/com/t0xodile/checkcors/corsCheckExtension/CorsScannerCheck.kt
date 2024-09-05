@@ -76,7 +76,7 @@ class CorsScannerCheck(private val api: MontoyaApi) : ScanCheck {
 
 
 
-
+        val attackerDomain = randSting(12) + ".com"
         val trustedDomain: String
 
         if (!baseRequestResponse.request().hasHeader("Origin")) {
@@ -91,11 +91,15 @@ class CorsScannerCheck(private val api: MontoyaApi) : ScanCheck {
         for (scheme in schemes) {
             for (bypass in bypasses) {
                 val originHeaderDomain: String
-                //If the bypass doesn't contain any placeholders
-                if (!bypass.contains("web-attacker.com") || !bypass.contains("example.com")) {
-                    originHeaderDomain = bypass
-                } else {
+                //Update placeholders if required
+                if (bypass.contains("web-attacker.com") && bypass.contains("example.com")) {
+                    originHeaderDomain = bypass.replace("example.com", trustedDomain).replace("web-attacker.com", attackerDomain)
+                } else if (bypass.contains("web-attacker.com")){
+                    originHeaderDomain = bypass.replace("web-attacker.com", attackerDomain)
+                } else if (bypass.contains("example.com")) {
                     originHeaderDomain = bypass.replace("example.com", trustedDomain)
+                } else {
+                    originHeaderDomain = bypass
                 }
 
                 val checkRequest = baseRequestResponse.request().withHeader("Origin", "$scheme$originHeaderDomain")
@@ -174,5 +178,10 @@ class CorsScannerCheck(private val api: MontoyaApi) : ScanCheck {
 
         // Generate a hash using the URL, headers, and body to uniquely identify the request
         return "$requestUrl$headers$requestBody".hashCode().toString()
+    }
+
+    private fun randSting(length: Int): String {
+        val chars = "abcdefghijklmnopqrstucwxyz"
+        return (1..length).map{ chars.random() }.joinToString("")
     }
 }
