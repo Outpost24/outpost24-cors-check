@@ -12,7 +12,7 @@ import burp.api.montoya.scanner.audit.issues.AuditIssueConfidence
 import burp.api.montoya.scanner.audit.issues.AuditIssueSeverity
 
 class CorsScannerCheck(private val api: MontoyaApi) : ScanCheck {
-    private val auditedRequests: MutableSet<HttpRequestResponse> = HashSet()
+    private val auditedRequests: MutableSet<String> = HashSet()
     override fun activeAudit(baseRequestResponse: HttpRequestResponse, auditInsertionPoint: AuditInsertionPoint): AuditResult {
         /*
         PLAN:
@@ -24,12 +24,14 @@ class CorsScannerCheck(private val api: MontoyaApi) : ScanCheck {
         */
 
         //Ensure we only run the check once... not for each request
-        if (auditedRequests.contains(baseRequestResponse)) {
+        val requestHash = generateRequestHash(baseRequestResponse)
+
+        if (auditedRequests.contains(requestHash)) {
             return AuditResult.auditResult()
         }
 
         //Add current request to list of "not to be scanned" items
-        auditedRequests.add(baseRequestResponse)
+        auditedRequests.add(requestHash)
 
         val bypasses = listOf(
             "example.com._.web-attacker.com",
@@ -163,5 +165,14 @@ class CorsScannerCheck(private val api: MontoyaApi) : ScanCheck {
         val end = start+match.length
         val marker = Marker.marker(start, end)
         return marker
+    }
+
+    private fun generateRequestHash(baseRequestResponse: HttpRequestResponse): String {
+        val requestUrl = baseRequestResponse.request().url()
+        val headers = baseRequestResponse.request().headers()
+        val requestBody = baseRequestResponse.request().body().toString()
+
+        // Generate a hash using the URL, headers, and body to uniquely identify the request
+        return "$requestUrl$headers$requestBody".hashCode().toString()
     }
 }
