@@ -14,4 +14,4 @@ The CORS check will take the domain from a valid origin header and use that as a
 ## TO-DO
 - [x] Trigger simple cors check to find trusted domains based off of subdomain list + user input
 - [x] Using list of then trusted domains, we need to run the cors scan against them....
-- [ ] Implement global settings that will allow disabling the trusted domains lookup - given that it can leak parent domain to third-party service
+- [x] Implement global settings that will allow disabling the trusted domains lookup - given that it can leak parent domain to third-party service
