@@ -47,7 +47,7 @@ object TrustedDomainCheck {
                         }
 
                         if (httpsCheckResp.response().headerValue("Access-Control-Allow-Origin") == httpsOrigin) {
-                            api.logging().logToOutput("Trusted Domain found! $httpsOrigin trusted by ${selectedRequest.httpService().host()}")
+                            api.logging().logToOutput("Trusted Domain found! $httpsOrigin trusted by ${selectedRequest.httpService().host()}... Launching Permissive CORS scan")
                             TrustedDomainValidationBypassCheck.runTrustedDomainValidationBypassCheck(api, selectedRequest, httpsOrigin.replace("https://", ""))
                         }
 
@@ -57,7 +57,7 @@ object TrustedDomainCheck {
                         }
 
                         if (httpCheckResp.response().headerValue("Access-Control-Allow-Origin") == httpOrigin) {
-                            api.logging().logToOutput("Trusted Domain found! $httpOrigin trusted by ${selectedRequest.httpService().host()}")
+                            api.logging().logToOutput("Trusted domain found! $httpOrigin trusted by ${selectedRequest.httpService().host()}... Launching Permissive CORS scan")
                             TrustedDomainValidationBypassCheck.runTrustedDomainValidationBypassCheck(api, selectedRequest, httpOrigin.replace("http://", ""))
                         }
                     } catch (e: Exception) {
@@ -65,7 +65,7 @@ object TrustedDomainCheck {
                     }
                 }
             }
-            api.logging().logToOutput("Trusted domain scan complete for: ${selectedRequest.httpService().host()}")
+            api.logging().logToOutput("Trusted domain scan complete for: ${selectedRequest.httpService().host()}. Check 'All issues' for any reported vulnerabilities")
         }
     }
 }

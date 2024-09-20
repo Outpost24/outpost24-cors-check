@@ -56,7 +56,7 @@ class CustomContextMenuItemsProvider(private val api: MontoyaApi) : ContextMenuI
             mainPanel.layout = BoxLayout(mainPanel, BoxLayout.Y_AXIS)
 
             // Add a descriptive label to explain the text box
-            val descriptionText = JTextArea("Enter the list of domains that may be trusted by the target endpoint (one per line). I recommend using all in-scope / mentioned domains in your test scope:")
+            val descriptionText = JTextArea("Enter the list of domains that may be trusted by the target endpoint (one per line). I recommend using all in-scope / mentioned domains in your test scope. The 'Run trusted domain scan' button will check if any of the listed domains (and subdomains if enabled) are trusted by the application. For each discovered trusted domain, a scan is launched to attempt to bypass the URL validation for that domain. If any bypasses are found, an issue is reported:")
             descriptionText.isEditable = false  // Make it non-editable like a label
             descriptionText.wrapStyleWord = true  // Enable word wrapping
             descriptionText.lineWrap = true
@@ -125,7 +125,10 @@ class CustomContextMenuItemsProvider(private val api: MontoyaApi) : ContextMenuI
 
                 // Run the scan, but only if there isn't arbitrary origin reflection. Otherwise no point!
                 if (!checkArbitraryOriginReflection(selectedRequest)) {
-                    runTrustedDomainScan(textArea.text, selectedRequest)
+                    //Run in thread to prevent UI from hanging....
+                    thread {
+                        runTrustedDomainScan(textArea.text, selectedRequest)
+                    }
                 }
             }
 
@@ -196,7 +199,7 @@ class CustomContextMenuItemsProvider(private val api: MontoyaApi) : ContextMenuI
         latch.await()
 
         // Log the selected domain
-        api.logging().logToOutput("Selected domain for CORS checks: ${selectedRequest.httpService()}")
+        api.logging().logToOutput("\r\nSelected domain for CORS checks: ${selectedRequest.httpService()}")
 
         // Send the selected domain and subdomains for CORS check
         TrustedDomainCheck.runTrustedDomainCheck(api, allDomains, selectedRequest)
