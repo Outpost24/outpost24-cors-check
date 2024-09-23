@@ -26,7 +26,7 @@ class CustomContextMenuItemsProvider(private val api: MontoyaApi) : ContextMenuI
     override fun provideMenuItems(event: ContextMenuEvent): MutableList<JMenuItem> {
         val menuItemList = ArrayList<JMenuItem>()
 
-        val findSubdomains = JMenuItem("Open Trusted Domains Scanner")
+        val findSubdomains = JMenuItem("Open trusted domains scanner")
 
         //Target host of selected request
         val selectedRequest = event.messageEditorRequestResponse().get().requestResponse().request()
@@ -56,7 +56,7 @@ class CustomContextMenuItemsProvider(private val api: MontoyaApi) : ContextMenuI
             mainPanel.layout = BoxLayout(mainPanel, BoxLayout.Y_AXIS)
 
             // Add a descriptive label to explain the text box
-            val descriptionText = JTextArea("Enter the list of domains that may be trusted by the target endpoint (one per line). I recommend using all in-scope / mentioned domains in your test scope. The 'Run trusted domain scan' button will check if any of the listed domains (and subdomains if enabled) are trusted by the application. For each discovered trusted domain, a scan is launched to attempt to bypass the URL validation for that domain. If any bypasses are found, an issue is reported:")
+            val descriptionText = JTextArea("Enter the list of domains that may be trusted by the target endpoint (one per line). I recommend using all domains mentioned in your test scope. The 'Run trusted domain scan' button will check if any of the listed domains (and subdomains, if enabled) are trusted by the application. For each discovered trusted domain, a CORS scan is launched in an attempt to bypass the URL validation for that domain. If any bypasses are found, an issue is reported:")
             descriptionText.isEditable = false  // Make it non-editable like a label
             descriptionText.wrapStyleWord = true  // Enable word wrapping
             descriptionText.lineWrap = true

@@ -23,6 +23,11 @@ class CorsScannerCheck(private val api: MontoyaApi) : ScanCheck {
         5. If any of the checks work, stop the loop and don't report
         */
 
+        //Check if scan check is actually enabled
+        if (!CorsCheckExtension.scanCheckEnabled) {
+            return AuditResult.auditResult()
+        }
+
         //Ensure we only run the check once... not for each request
         val requestHash = generateRequestHash(baseRequestResponse)
 
@@ -155,7 +160,6 @@ class CorsScannerCheck(private val api: MontoyaApi) : ScanCheck {
         return AuditResult.auditResult(issues)
 
     }
-
 
     override fun passiveAudit(p0: HttpRequestResponse?): AuditResult {
         return AuditResult.auditResult()

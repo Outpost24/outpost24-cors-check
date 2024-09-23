@@ -41,21 +41,20 @@ object TrustedDomainCheck {
                         val httpsCheckResp = api.http().sendRequest(httpsCheck)
                         val httpCheckResp = api.http().sendRequest(httpCheck)
 
-                        //Check for matching ACAO in https
-                        if (!httpsCheckResp.response().hasHeader("Access-Control-Allow-Origin")) {
-                            api.logging().logToOutput("ACAO not found... Skipping")
+
+                        //If neither http or https have an ACAO header... skip
+                        if (!httpsCheckResp.response().hasHeader("Access-Control-Allow-Origin") && !httpCheckResp.response().hasHeader("Access-Control-Allow-Origin")) {
+                            //api.logging().logToOutput("ACAO not found... Skipping")
+                            continue
                         }
 
+                        //Check for matching ACAO in https
                         if (httpsCheckResp.response().headerValue("Access-Control-Allow-Origin") == httpsOrigin) {
                             api.logging().logToOutput("Trusted Domain found! $httpsOrigin trusted by ${selectedRequest.httpService().host()}... Launching Permissive CORS scan")
                             TrustedDomainValidationBypassCheck.runTrustedDomainValidationBypassCheck(api, selectedRequest, httpsOrigin.replace("https://", ""))
                         }
 
                         //Check for matching ACAO in http
-                        if (!httpCheckResp.response().hasHeader("Access-Control-Allow-Origin")) {
-                            api.logging().logToOutput("ACAO not found... Skipping")
-                        }
-
                         if (httpCheckResp.response().headerValue("Access-Control-Allow-Origin") == httpOrigin) {
                             api.logging().logToOutput("Trusted domain found! $httpOrigin trusted by ${selectedRequest.httpService().host()}... Launching Permissive CORS scan")
                             TrustedDomainValidationBypassCheck.runTrustedDomainValidationBypassCheck(api, selectedRequest, httpOrigin.replace("http://", ""))
