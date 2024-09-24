@@ -30,7 +30,6 @@ object TrustedDomainValidationBypassCheck {
             "web-attacker.com.example.com",
             "web-attacker.com.example.com",
             "anythingexample.com",
-            "anythingexample.com",
             "localhostweb-attacker.com",
             "localhost.web-attacker.com",
             "null",
@@ -114,24 +113,5 @@ object TrustedDomainValidationBypassCheck {
             api.siteMap().add(issue)
         }
 
-    }
-
-    private fun randSting(length: Int): String {
-        val chars = "abcdefghijklmnopqrstucwxyz"
-        return (1..length).map{ chars.random() }.joinToString("")
-    }
-
-    private fun getMarkerFromResponse(requestResponse: HttpRequestResponse, match: String): Marker? {
-        val start = requestResponse.response().toString().indexOf(match, 0)
-        val end = start+match.length
-        val marker = Marker.marker(start, end)
-        return marker
-    }
-
-    private fun getMarkerFromRequest(requestResponse: HttpRequestResponse, match: String): Marker? {
-        val start = requestResponse.request().toString().indexOf(match, 0)
-        val end = start+match.length
-        val marker = Marker.marker(start, end)
-        return marker
     }
 }

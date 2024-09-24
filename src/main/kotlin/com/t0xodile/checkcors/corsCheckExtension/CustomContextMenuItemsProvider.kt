@@ -230,9 +230,4 @@ class CustomContextMenuItemsProvider(private val api: MontoyaApi) : ContextMenuI
         executor.shutdown()
         return result
     }
-
-    private fun randSting(length: Int): String {
-        val chars = "abcdefghijklmnopqrstucwxyz"
-        return (1..length).map{ chars.random() }.joinToString("")
-    }
 }

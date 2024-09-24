@@ -28,7 +28,7 @@ class CorsScannerCheck(private val api: MontoyaApi) : ScanCheck {
             return AuditResult.auditResult()
         }
 
-        //Ensure we only run the check once... not for each request
+        //Ensure we only run the check once... not for each insertion point
         val requestHash = generateRequestHash(baseRequestResponse)
 
         if (auditedRequests.contains(requestHash)) {
@@ -37,6 +37,7 @@ class CorsScannerCheck(private val api: MontoyaApi) : ScanCheck {
 
         //Add current request to list of "not to be scanned" items
         auditedRequests.add(requestHash)
+
 
         val bypasses = listOf(
             "example.com._.web-attacker.com",
@@ -57,7 +58,6 @@ class CorsScannerCheck(private val api: MontoyaApi) : ScanCheck {
             "example.comweb-attacker.com",
             "web-attacker.com.example.com",
             "web-attacker.com.example.com",
-            "anythingexample.com",
             "anythingexample.com",
             "localhostweb-attacker.com",
             "localhost.web-attacker.com",
@@ -169,20 +169,6 @@ class CorsScannerCheck(private val api: MontoyaApi) : ScanCheck {
         return ConsolidationAction.KEEP_EXISTING
     }
 
-    private fun getMarkerFromResponse(requestResponse: HttpRequestResponse, match: String): Marker? {
-        val start = requestResponse.response().toString().indexOf(match, 0)
-        val end = start+match.length
-        val marker = Marker.marker(start, end)
-        return marker
-    }
-
-    private fun getMarkerFromRequest(requestResponse: HttpRequestResponse, match: String): Marker? {
-        val start = requestResponse.request().toString().indexOf(match, 0)
-        val end = start+match.length
-        val marker = Marker.marker(start, end)
-        return marker
-    }
-
     private fun generateRequestHash(baseRequestResponse: HttpRequestResponse): String {
         val requestUrl = baseRequestResponse.request().url()
         val headers = baseRequestResponse.request().headers()
@@ -190,10 +176,5 @@ class CorsScannerCheck(private val api: MontoyaApi) : ScanCheck {
 
         // Generate a hash using the URL, headers, and body to uniquely identify the request
         return "$requestUrl$headers$requestBody".hashCode().toString()
-    }
-
-    private fun randSting(length: Int): String {
-        val chars = "abcdefghijklmnopqrstucwxyz"
-        return (1..length).map{ chars.random() }.joinToString("")
     }
 }

@@ -15,3 +15,10 @@ The CORS check will take the domain from a valid origin header and use that as a
 - [x] Trigger simple cors check to find trusted domains based off of subdomain list + user input
 - [x] Using list of then trusted domains, we need to run the cors scan against them....
 - [x] Implement global settings that will allow disabling the trusted domains lookup - given that it can leak parent domain to third-party service
+- [x] Add option to enable / disable scan check
+- [ ] Code improvements
+- [ ] Bulk mode?
+  - This would need to take a selection of requestResponses and run the cors check against each of those requests....
+  - We can't prompt the user with a box to enter additional domains here right?
+    - We could in a regular pentest I guess....
+    - add a check and warning for "Selected multiple hosts"?
