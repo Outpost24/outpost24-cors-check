@@ -23,7 +23,7 @@ class CorsScannerCheck(private val api: MontoyaApi) : ScanCheck {
             return AuditResult.auditResult()
         }
 
-        //Ensure we only run the check once... not for each insertion point
+        //Ensure we only run the check once per request ("request" is defined as $requestUrl$headers$requestBody so any changes to those will allow another scan)
         val requestHash = generateRequestHash(baseRequestResponse)
 
         if (auditedRequests.contains(requestHash)) {
