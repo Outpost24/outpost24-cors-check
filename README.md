@@ -17,6 +17,8 @@ The CORS check will take the domain from a valid origin header and use that as a
 - [x] Implement global settings that will allow disabling the trusted domains lookup - given that it can leak parent domain to third-party service
 - [x] Add option to enable / disable scan check
 - [x] Code improvements regarding duplicated functions
+- [x] Add default list of trusted domains
+- [ ] Default list of trusted domains should possibly go into the scan check too? Optional?
 - [ ] Bulk mode?
   - This would need to take a selection of requestResponses and run the cors check against each of those requests....
   - We can't prompt the user with a box to enter additional domains here right?
