@@ -1,23 +1,11 @@
-package com.t0xodile.checkcors.corsCheckExtension
-
 import burp.api.montoya.MontoyaApi
-import burp.api.montoya.core.ToolSource
-import burp.api.montoya.core.ToolType
-import burp.api.montoya.http.HttpService
-import burp.api.montoya.http.message.HttpRequestResponse
-import burp.api.montoya.http.message.StatusCodeClass
 import burp.api.montoya.http.message.requests.HttpRequest
-import burp.api.montoya.scanner.AuditResult
 import burp.api.montoya.ui.contextmenu.ContextMenuEvent
 import burp.api.montoya.ui.contextmenu.ContextMenuItemsProvider
-import burp.api.montoya.ui.contextmenu.InvocationType
 import java.awt.BorderLayout
 import java.awt.Component
 import java.awt.Dimension
-import java.util.concurrent.Callable
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executors
-import java.util.concurrent.Future
 import javax.swing.*
 import kotlin.concurrent.thread
 

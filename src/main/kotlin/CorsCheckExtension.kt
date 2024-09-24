@@ -1,5 +1,3 @@
-package com.t0xodile.checkcors.corsCheckExtension
-
 import burp.api.montoya.BurpExtension
 import burp.api.montoya.MontoyaApi
 import javax.swing.JCheckBoxMenuItem

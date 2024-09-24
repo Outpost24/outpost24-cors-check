@@ -1,8 +1,5 @@
-package com.t0xodile.checkcors.corsCheckExtension
-
 import burp.api.montoya.MontoyaApi
 import burp.api.montoya.core.Marker
-import burp.api.montoya.http.message.HttpRequestResponse
 import burp.api.montoya.http.message.requests.HttpRequest
 import burp.api.montoya.scanner.audit.issues.AuditIssue
 import burp.api.montoya.scanner.audit.issues.AuditIssueConfidence
@@ -84,7 +81,8 @@ object TrustedDomainValidationBypassCheck {
 
             //checkRequestResponse.response() contains both the ACAC = True and ACAO = reflected origin header, we have a vuln!
             val acacMarker = getMarkerFromResponse(checkRequestResponse, "Access-Control-Allow-Credentials: true")
-            val vulnerableOriginMarker = getMarkerFromResponse(checkRequestResponse, "Access-Control-Allow-Origin: $vulnerableOrigin")
+            val vulnerableOriginMarker =
+                getMarkerFromResponse(checkRequestResponse, "Access-Control-Allow-Origin: $vulnerableOrigin")
 
             val exploitOriginMarker = getMarkerFromRequest(checkRequestResponse, "Origin: $vulnerableOrigin")
 

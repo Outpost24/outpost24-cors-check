@@ -1,15 +1,10 @@
-package com.t0xodile.checkcors.corsCheckExtension
-
 import burp.api.montoya.MontoyaApi
-import burp.api.montoya.core.Marker
 import burp.api.montoya.http.message.HttpRequestResponse
 import burp.api.montoya.scanner.AuditResult
 import burp.api.montoya.scanner.ConsolidationAction
 import burp.api.montoya.scanner.ScanCheck
 import burp.api.montoya.scanner.audit.insertionpoint.AuditInsertionPoint
 import burp.api.montoya.scanner.audit.issues.AuditIssue
-import burp.api.montoya.scanner.audit.issues.AuditIssueConfidence
-import burp.api.montoya.scanner.audit.issues.AuditIssueSeverity
 
 class CorsScannerCheck(private val api: MontoyaApi) : ScanCheck {
     private val auditedRequests: MutableSet<String> = HashSet()
@@ -42,7 +37,11 @@ class CorsScannerCheck(private val api: MontoyaApi) : ScanCheck {
         if (checkArbitraryOriginReflection(api, baseRequestResponse.request())) {
             return AuditResult.auditResult()
         }
-        val issues = TrustedDomainValidationBypassCheck.runTrustedDomainValidationBypassCheck(api, baseRequestResponse.request(), baseRequestResponse.httpService().host())
+        val issues = TrustedDomainValidationBypassCheck.runTrustedDomainValidationBypassCheck(
+            api,
+            baseRequestResponse.request(),
+            baseRequestResponse.httpService().host()
+        )
 
         return AuditResult.auditResult(issues)
 

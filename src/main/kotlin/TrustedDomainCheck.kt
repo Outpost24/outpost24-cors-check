@@ -1,7 +1,4 @@
-package com.t0xodile.checkcors.corsCheckExtension
-
 import burp.api.montoya.MontoyaApi
-import burp.api.montoya.http.HttpService
 import burp.api.montoya.http.message.requests.HttpRequest
 import kotlin.concurrent.thread
 
@@ -51,7 +48,11 @@ object TrustedDomainCheck {
                         //Check for matching ACAO in https
                         if (httpsCheckResp.response().headerValue("Access-Control-Allow-Origin") == httpsOrigin) {
                             api.logging().logToOutput("Trusted Domain found! $httpsOrigin trusted by ${selectedRequest.httpService().host()}... Launching Permissive CORS scan")
-                            val issues = TrustedDomainValidationBypassCheck.runTrustedDomainValidationBypassCheck(api, selectedRequest, httpsOrigin.replace("https://", ""))
+                            val issues = TrustedDomainValidationBypassCheck.runTrustedDomainValidationBypassCheck(
+                                api,
+                                selectedRequest,
+                                httpsOrigin.replace("https://", "")
+                            )
                             for (issue in issues) {
                                 api.siteMap().add(issue)
                             }
@@ -60,7 +61,11 @@ object TrustedDomainCheck {
                         //Check for matching ACAO in http
                         if (httpCheckResp.response().headerValue("Access-Control-Allow-Origin") == httpOrigin) {
                             api.logging().logToOutput("Trusted domain found! $httpOrigin trusted by ${selectedRequest.httpService().host()}... Launching Permissive CORS scan")
-                            val issues = TrustedDomainValidationBypassCheck.runTrustedDomainValidationBypassCheck(api, selectedRequest, httpOrigin.replace("http://", ""))
+                            val issues = TrustedDomainValidationBypassCheck.runTrustedDomainValidationBypassCheck(
+                                api,
+                                selectedRequest,
+                                httpOrigin.replace("http://", "")
+                            )
                             for (issue in issues) {
                                 api.siteMap().add(issue)
                             }

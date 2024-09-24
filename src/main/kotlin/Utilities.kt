@@ -1,5 +1,3 @@
-package com.t0xodile.checkcors.corsCheckExtension
-
 import burp.api.montoya.MontoyaApi
 import burp.api.montoya.core.Marker
 import burp.api.montoya.http.message.HttpRequestResponse
