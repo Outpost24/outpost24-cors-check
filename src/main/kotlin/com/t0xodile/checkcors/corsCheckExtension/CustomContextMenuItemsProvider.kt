@@ -124,7 +124,7 @@ class CustomContextMenuItemsProvider(private val api: MontoyaApi) : ContextMenuI
                 frame.dispose()
 
                 // Run the scan, but only if there isn't arbitrary origin reflection. Otherwise no point!
-                if (!checkArbitraryOriginReflection(selectedRequest)) {
+                if (!checkArbitraryOriginReflection(api, selectedRequest)) {
                     //Run in thread to prevent UI from hanging....
                     thread {
                         runTrustedDomainScan(textArea.text, selectedRequest)
@@ -203,31 +203,5 @@ class CustomContextMenuItemsProvider(private val api: MontoyaApi) : ContextMenuI
 
         // Send the selected domain and subdomains for CORS check
         TrustedDomainCheck.runTrustedDomainCheck(api, allDomains, selectedRequest)
-    }
-
-    private fun checkArbitraryOriginReflection(selectedRequest: HttpRequest): Boolean {
-        val attackerDomain = randSting(12) + ".com"
-        //Check if we have arbitrary origin reflection. If we do, just give-up burp will handle this for us and we don't want to report all of these bypasses....
-        val arbitraryOriginCheckRequest = selectedRequest.withHeader("Origin", attackerDomain)
-
-        val executor = Executors.newSingleThreadExecutor()
-        val future: Future<Boolean> = executor.submit(Callable {
-            try {
-                val arbitraryOrigincheckRequestResponse = api.http().sendRequest(arbitraryOriginCheckRequest)
-                if (arbitraryOrigincheckRequestResponse.response().headerValue("Access-Control-Allow-Credentials") == "true" && arbitraryOrigincheckRequestResponse.response().headerValue("Access-Control-Allow-Origin") == attackerDomain) {
-                    api.logging().logToOutput("Arbitrary Reflected Origin found, skipping because burp will handle this for us.")
-                    return@Callable true
-                } else {
-                    return@Callable false
-                }
-            } catch (e: Exception) {
-                api.logging().logToError("Error during request: ${e.message}")
-                return@Callable false
-            }
-        })
-
-        val result = future.get()
-        executor.shutdown()
-        return result
     }
 }

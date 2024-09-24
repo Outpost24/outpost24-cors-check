@@ -9,7 +9,7 @@ import burp.api.montoya.scanner.audit.issues.AuditIssueConfidence
 import burp.api.montoya.scanner.audit.issues.AuditIssueSeverity
 
 object TrustedDomainValidationBypassCheck {
-    fun runTrustedDomainValidationBypassCheck(api: MontoyaApi, selectedRequest: HttpRequest, trustedDomain: String) {
+    fun runTrustedDomainValidationBypassCheck(api: MontoyaApi, selectedRequest: HttpRequest, trustedDomain: String): List<AuditIssue> {
         val bypasses = listOf(
             "example.com._.web-attacker.com",
             "example.com.-.web-attacker.com",
@@ -109,9 +109,6 @@ object TrustedDomainValidationBypassCheck {
             )
             issues.add(auditIssue)
         }
-        for (issue in issues) {
-            api.siteMap().add(issue)
-        }
-
+        return issues
     }
 }

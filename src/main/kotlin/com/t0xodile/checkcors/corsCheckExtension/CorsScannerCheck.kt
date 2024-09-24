@@ -38,125 +38,12 @@ class CorsScannerCheck(private val api: MontoyaApi) : ScanCheck {
         //Add current request to list of "not to be scanned" items
         auditedRequests.add(requestHash)
 
-
-        val bypasses = listOf(
-            "example.com._.web-attacker.com",
-            "example.com.-.web-attacker.com",
-            "example.com.,.web-attacker.com",
-            "example.com.;.web-attacker.com",
-            "example.com.!.web-attacker.com",
-            "example.com.'.web-attacker.com",
-            "example.com.(.web-attacker.com",
-            "example.com.).web-attacker.com",
-            "example.com.*.web-attacker.com",
-            "example.com.&.web-attacker.com",
-            "example.com.+.web-attacker.com",
-            "example.com.web-attacker.com",
-            "example.com.=.web-attacker.com",
-            "example.com.~.web-attacker.com",
-            "example.com.$.web-attacker.com",
-            "example.comweb-attacker.com",
-            "web-attacker.com.example.com",
-            "web-attacker.com.example.com",
-            "anythingexample.com",
-            "localhostweb-attacker.com",
-            "localhost.web-attacker.com",
-            "null",
-            "sexample.com",
-            "[::]",
-            "[::1]",
-            "[::ffff:7f00:1]",
-            "[0000:0000:0000:0000:0000:0000:0000:0000]",
-            "example.com.local",
-            "example.com.localhost",
-            "0.0.0.0",
-            "127.0.0.1",
-            "localhost"
-        )
-
-        val schemes = listOf(
-            "https://",
-            "http://"
-        )
-
-
-
-        val attackerDomain = randSting(12) + ".com"
-        val trustedDomain: String
-
-        if (!baseRequestResponse.request().hasHeader("Origin")) {
-            trustedDomain = baseRequestResponse.request().httpService().host() //Set the origin header to the target domain if it doesn't exist
-        } else {
-            val domainRegex = """https?://([a-zA-Z0-9.-]+)""".toRegex()
-            trustedDomain = domainRegex.find(baseRequestResponse.request().headerValue("Origin"))?.groupValues?.get(1) ?: baseRequestResponse.request().httpService().host()
-        }
-
-        //Check if we have arbitrary origin reflection. If we do, just give-up burp will handle this for us and we don't want to report all of these bypasses....
-        val arbitraryOriginCheckRequest = baseRequestResponse.request().withHeader("Origin", attackerDomain)
-        val arbitraryOrigincheckRequestResponse = api.http().sendRequest(arbitraryOriginCheckRequest)
-        if (arbitraryOrigincheckRequestResponse.response().headerValue("Access-Control-Allow-Credentials") == "true" && arbitraryOrigincheckRequestResponse.response().headerValue("Access-Control-Allow-Origin") == attackerDomain) {
-            api.logging().logToOutput("Arbitrary Reflected Origin found, skipping because burp will handle this for us.")
+        //Check for arbitrary reflection and exit if there is (burp will handle this for us)
+        if (checkArbitraryOriginReflection(api, baseRequestResponse.request())) {
             return AuditResult.auditResult()
         }
+        val issues = TrustedDomainValidationBypassCheck.runTrustedDomainValidationBypassCheck(api, baseRequestResponse.request(), baseRequestResponse.httpService().host())
 
-        val issues = mutableListOf<AuditIssue>()
-
-        for (scheme in schemes) {
-            for (bypass in bypasses) {
-                val originHeaderDomain: String
-                //Update placeholders if required
-                if (bypass.contains("web-attacker.com") && bypass.contains("example.com")) {
-                    originHeaderDomain = bypass.replace("example.com", trustedDomain).replace("web-attacker.com", attackerDomain)
-                } else if (bypass.contains("web-attacker.com")){
-                    originHeaderDomain = bypass.replace("web-attacker.com", attackerDomain)
-                } else if (bypass.contains("example.com")) {
-                    originHeaderDomain = bypass.replace("example.com", trustedDomain)
-                } else {
-                    originHeaderDomain = bypass
-                }
-
-                val checkRequest = baseRequestResponse.request().withHeader("Origin", "$scheme$originHeaderDomain")
-
-                val checkRequestResponse = api.http().sendRequest(checkRequest)
-                val acacHeader = "true"
-                val vulnerableOrigin = "$scheme$originHeaderDomain"
-
-                if (checkRequestResponse.response().headerValue("Access-Control-Allow-Credentials") != acacHeader) {
-                    continue
-                }
-                if (checkRequestResponse.response().headerValue("Access-Control-Allow-Origin") != vulnerableOrigin) {
-                    continue
-                }
-
-                //checkRequestResponse.response() contains both the ACAC = True and ACAO = reflected origin header, we have a vuln!
-                val acacMarker = getMarkerFromResponse(checkRequestResponse, "Access-Control-Allow-Credentials: true")
-                val vulnerableOriginMarker = getMarkerFromResponse(checkRequestResponse, "Access-Control-Allow-Origin: $scheme$originHeaderDomain")
-
-                val exploitOriginMarker = getMarkerFromRequest(checkRequestResponse, "Origin: $scheme$originHeaderDomain")
-
-                val responseHighlights = mutableListOf<Marker?>()
-                responseHighlights.add(acacMarker)
-                responseHighlights.add(vulnerableOriginMarker)
-
-                val requestHighlights = mutableListOf<Marker?>()
-                requestHighlights.add(exploitOriginMarker)
-
-                val auditIssue = AuditIssue.auditIssue(
-                    "Permissive Cross-Origin Resource Sharing via '$bypass'",
-                    "This response is reflecting a super-weird origin header value that actually makes it vulnerable. For some special characters you might need to use Safari. This check is based off of this research -> https://corben.io/blog/18-6-16-advanced-cors-techniques | https://github.com/lc/theftfuzzer/tree/master",
-                    "Validate the 'Origin' header against a whitelist of know-trusted domains and subdomains.",
-                    baseRequestResponse.request().url(),
-                    AuditIssueSeverity.HIGH,
-                    AuditIssueConfidence.CERTAIN,
-                    "Permissive Cross-Origin Resource Sharing may allow an attacker to steal sensitive data from unsuspecting users. For this to work, the application must implement some form of authentication that the browser will automatically include with requests (think cookies, basic auth, digest but NOT Authorization Bearer). Additionally, if Cookies are used, SameSite will likely need to be EXPLICITLY set to 'None' for the cookie to be sent cross-domain.",
-                    "Implementing URL validation in a regex can be tricky. Better to implement a whitelist and have the origin header match EXACTLY those values, otherwise reject. ",
-                    AuditIssueSeverity.HIGH,
-                    checkRequestResponse.withResponseMarkers(responseHighlights).withRequestMarkers(requestHighlights)
-                )
-                issues.add(auditIssue)
-
-            }
-        }
         return AuditResult.auditResult(issues)
 
     }
