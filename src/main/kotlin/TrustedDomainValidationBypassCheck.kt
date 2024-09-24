@@ -25,21 +25,10 @@ object TrustedDomainValidationBypassCheck {
             "example.com.$.web-attacker.com",
             "example.comweb-attacker.com",
             "web-attacker.com.example.com",
-            "web-attacker.com.example.com",
             "anythingexample.com",
             "localhostweb-attacker.com",
             "localhost.web-attacker.com",
-            "null",
-            "sexample.com",
-            "[::]",
-            "[::1]",
-            "[::ffff:7f00:1]",
-            "[0000:0000:0000:0000:0000:0000:0000:0000]",
-            "example.com.local",
-            "example.com.localhost",
-            "0.0.0.0",
-            "127.0.0.1",
-            "localhost"
+            "sexample.com"
         )
 
         val attackerDomain = randSting(12) + ".com"

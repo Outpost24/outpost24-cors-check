@@ -134,7 +134,20 @@ class CustomContextMenuItemsProvider(private val api: MontoyaApi) : ContextMenuI
     // Runs the scan for trusted domains based on user input
     private fun runTrustedDomainScan(domainsText: String, selectedRequest: HttpRequest) {
         // Split the text area content by newlines to get the list of domains
-        val parentDomains = domainsText.split("\n").map { it.trim() }.filter { it.isNotEmpty() }
+        val parentDomains: MutableList<String> = domainsText.split("\n").map { it.trim() }.filter { it.isNotEmpty() }.toMutableList()
+
+        // Add other possible trusted domains
+        val defaultTrustedDomains = listOf<String>(
+            "[::]",
+            "[::1]",
+            "[::ffff:7f00:1]",
+            "[0000:0000:0000:0000:0000:0000:0000:0000]",
+            "0.0.0.0",
+            "127.0.0.1",
+            "localhost"
+        )
+        parentDomains.addAll(defaultTrustedDomains)
+
 
         val allDomains = mutableMapOf<String, MutableList<String>>()
 
@@ -151,10 +164,11 @@ class CustomContextMenuItemsProvider(private val api: MontoyaApi) : ContextMenuI
                     //Create a list of subdomains for this specific parent domain
                     val subDomainsForParent = mutableListOf<String>()
 
-                    //Add the OG target domain in case it trusts itself!
+                    //Add the OG parent domain in case it trusts itself!
                     subDomainsForParent.add(domain)
 
-                    if (externalSubDomainLookup) {
+                    //Check if enabled and also don't try to do a lookup for localhost and similar...
+                    if (externalSubDomainLookup && domain !in defaultTrustedDomains) {
                         api.logging().logToOutput("Looking up subdomains for: $domain")
                         val url = "https://columbus.elmasy.com/api/lookup/$domain"
                         val apiResp = api.http().sendRequest(HttpRequest.httpRequestFromUrl(url).withHeader("Accept", "text/plain"))
