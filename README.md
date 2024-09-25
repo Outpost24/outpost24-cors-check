@@ -1,4 +1,4 @@
-# Active Scan +++
+# t0xodile's CORS Check
 More scan checks because Burp's scanner is good, but I want more. 
 
 To use simply install the extention and run an active scan. 
