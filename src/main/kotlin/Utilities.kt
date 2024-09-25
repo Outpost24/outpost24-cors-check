@@ -54,3 +54,13 @@ fun checkArbitraryOriginReflection(api: MontoyaApi, selectedRequest: HttpRequest
     executor.shutdown()
     return result
 }
+
+val defaultTrustedDomains = listOf<String>(
+    "[::]",
+    "[::1]",
+    "[::ffff:7f00:1]",
+    "[0000:0000:0000:0000:0000:0000:0000:0000]",
+    "0.0.0.0",
+    "127.0.0.1",
+    "localhost"
+)

@@ -44,12 +44,14 @@ class CustomContextMenuItemsProvider(private val api: MontoyaApi) : ContextMenuI
             mainPanel.layout = BoxLayout(mainPanel, BoxLayout.Y_AXIS)
 
             // Add a descriptive label to explain the text box
-            val descriptionText = JTextArea("Enter the list of domains that may be trusted by the target endpoint (one per line). I recommend using all domains mentioned in your test scope. The 'Run trusted domain scan' button will check if any of the listed domains (and subdomains, if enabled) are trusted by the application. For each discovered trusted domain, a CORS scan is launched in an attempt to bypass the URL validation for that domain. If any bypasses are found, an issue is reported:")
+            val descriptionText = JTextArea(
+                """Enter the list of domains that may be trusted by the target endpoint (one per line).""".trimMargin()
+            )
             descriptionText.isEditable = false  // Make it non-editable like a label
             descriptionText.wrapStyleWord = true  // Enable word wrapping
             descriptionText.lineWrap = true
             descriptionText.isOpaque = false  // Make background transparent like a label
-            descriptionText.border = null  // Remove border for a clean label-like appearance
+            //descriptionText.border = null  // Remove border for a clean label-like appearance
             descriptionText.font = descriptionText.font.deriveFont(14f)  // Adjust font size if needed
             descriptionText.isFocusable = false //Prevent the cursor appearing on it...
 
@@ -106,6 +108,7 @@ class CustomContextMenuItemsProvider(private val api: MontoyaApi) : ContextMenuI
             // Create the "Run trusted domain scan" button
             val runButton = JButton("Run trusted domain scan")
             runButton.preferredSize = Dimension(200, 40)
+            runButton.toolTipText = "Finds trusted domains, then checks each trusted domain for Permissive CORS issues."
 
             runButton.addActionListener {
                 // Close the window when the button is clicked
@@ -137,17 +140,7 @@ class CustomContextMenuItemsProvider(private val api: MontoyaApi) : ContextMenuI
         val parentDomains: MutableList<String> = domainsText.split("\n").map { it.trim() }.filter { it.isNotEmpty() }.toMutableList()
 
         // Add other possible trusted domains
-        val defaultTrustedDomains = listOf<String>(
-            "[::]",
-            "[::1]",
-            "[::ffff:7f00:1]",
-            "[0000:0000:0000:0000:0000:0000:0000:0000]",
-            "0.0.0.0",
-            "127.0.0.1",
-            "localhost"
-        )
         parentDomains.addAll(defaultTrustedDomains)
-
 
         val allDomains = mutableMapOf<String, MutableList<String>>()
 

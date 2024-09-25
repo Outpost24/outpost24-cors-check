@@ -37,6 +37,8 @@ class CorsScannerCheck(private val api: MontoyaApi) : ScanCheck {
         if (checkArbitraryOriginReflection(api, baseRequestResponse.request())) {
             return AuditResult.auditResult()
         }
+
+
         val issues = TrustedDomainValidationBypassCheck.runTrustedDomainValidationBypassCheck(
             api,
             baseRequestResponse.request(),
