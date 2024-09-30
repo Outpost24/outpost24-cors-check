@@ -1,6 +1,13 @@
 # t0xodile's CORS Check
-More scan checks because Burp's scanner is good, but I want more. 
+Permissive CORS vulnerabilities are trickier to detect than you might think. However, using this burp extension you can extend Burp's default CORS scan checks, and add extra functionality to burp, allowing you to detect and attempt to exploit trusted domain CORS bypaases. The ideas and detection methods in this tool all stem from the following resources and research. 
 
-To use simply install the extention and run an active scan. 
+1. [Exploiting CORS misconfigurations for Bitcoins and bounties by James Kettle](https://portswigger.net/research/exploiting-cors-misconfigurations-for-bitcoins-and-bounties)
+2. [Advanced CORS Exploitation Techniques by Corben Leo](https://corben.io/blog/18-6-16-advanced-cors-techniques)
+3. [URL validation bypass cheat sheet by PortSwigger](https://portswigger.net/web-security/ssrf/url-validation-bypass-cheat-sheet)
 
-The CORS check will take the domain from a valid origin header and use that as a "trusted" domain to test bypasses on. Therefore it is worth running the scan against different requests with different Origin header values.
+To use, simply download the latest .jar file from the releases page, install the extention and run an active scan. You can also right-click any request in burp, and open the trusted domain scanner in order to check for, and attempt to exploit, trusted daomin CORS bypasses. 
+
+To build it yourself run the following commands. You can find the build in the `build\libs` folder:
+1. `git clone <repo-URL-here>`
+2. `cd outpost24-cors-check`
+3. `gradle build`
