@@ -113,11 +113,10 @@ class CustomContextMenuItemsProvider(private val api: MontoyaApi) : ContextMenuI
             runButton.addActionListener {
                 // Close the window when the button is clicked
                 frame.dispose()
-
-                // Run the scan, but only if there isn't arbitrary origin reflection. Otherwise no point!
-                if (!checkArbitraryOriginReflection(api, selectedRequest)) {
-                    //Run in thread to prevent UI from hanging....
-                    thread {
+                //Run in thread to prevent UI from hanging....
+                thread {
+                    // Run the scan, but only if there isn't arbitrary origin reflection. Otherwise no point!
+                    if (!checkArbitraryOriginReflection(api, selectedRequest)) {
                         runTrustedDomainScan(textArea.text, selectedRequest)
                     }
                 }
